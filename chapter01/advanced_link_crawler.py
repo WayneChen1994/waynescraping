@@ -5,7 +5,7 @@
 
 import re
 import time
-import itertools
+# import itertools
 import urllib.request
 from urllib import robotparser
 from urllib.parse import urljoin
@@ -195,3 +195,10 @@ def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', max_
                         crawl_queue.append(abs_link)
         else:
             print('Blocked by robots.txt:', url)
+
+
+if __name__ == '__main__':
+    start_url = 'http://example.python-scraping.com'
+    link_regex = '/(index|view)/'
+    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
+    link_crawler(start_url, link_regex, user_agent=user_agent)

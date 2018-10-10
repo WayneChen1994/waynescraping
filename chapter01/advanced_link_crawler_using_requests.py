@@ -43,7 +43,7 @@ def download(url, user_agent='wswp', num_retries=2, proxies=None):
             print('Download error:', resp.text)
             html = None
             if num_retries and 500 <= resp.status_code < 600:
-                return download(url=url, num_retries=num_retries-1)
+                return download(url=url, num_retries=num_retries-1, proxies=proxies)
     except requests.exceptions.RequestException as e:
         print('Download error:', e.strerror)
         html = None

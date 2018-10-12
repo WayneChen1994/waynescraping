@@ -4,13 +4,12 @@
 
 
 import re
-import time
 # import itertools
 import urllib.request
 from urllib import robotparser
 from urllib.parse import urljoin
-from urllib.parse import urlparse
 from urllib.error import URLError, HTTPError, ContentTooShortError
+from chp1.throttle import Throttle
 
 
 # def download(url):
@@ -91,27 +90,6 @@ from urllib.error import URLError, HTTPError, ContentTooShortError
 #             # 成功 - 就能够爬取结果
 
 
-class Throttle:
-    """ 对同一域名的下载请求之间添加延时 """
-    def __init__(self, delay):
-        # 指定每个域名的下载间隔延迟量
-        self.delay = delay
-        # 保存上次访问域名的时间戳
-        self.domains = {}
-
-    def wait(self, url):
-        domain = urlparse(url).netloc
-        last_accessed = self.domains.get(domain)
-
-        if self.delay > 0 and last_accessed is not None:
-            sleep_secs = self.delay - (time.time() - last_accessed)
-            if sleep_secs > 0:
-                # 说明该域名最近被访问过，所以需要睡眠
-                time.sleep(sleep_secs)
-        # 更新最后访问的时间
-        self.domains[domain] = time.time()
-
-
 def download(url, user_agent='wswp', num_retries=2, charset='utf-8', proxy=None):
     """ HTML网页下载器 """
     print('Downloading:', url)
@@ -155,7 +133,7 @@ def get_robots_parser(robots_url):
     return rp
 
 
-def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', max_depth=4):
+def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', proxy=None, delay=3, max_depth=4, scrape_callback=None):
     """
     从给定的起始URL开始爬取所有正则表达式匹配到的链接
     """
@@ -168,8 +146,9 @@ def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', max_
     # seen = set(crawl_queue)
     # 新的seen为字典，增加了以发现链接的深度记录
     seen = {}
+    data = []
     # 爬虫下载限速
-    throttle = Throttle(delay=1)
+    throttle = Throttle(delay)
     while crawl_queue:
         url = crawl_queue.pop()
         # 检查URL是否允许爬取(根据robots.txt文件中的定义)
@@ -180,9 +159,11 @@ def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', max_
                 print('Skipping %s due to depth' % url)
                 continue
             throttle.wait(url)
-            html = download(url=url, user_agent=user_agent)
+            html = download(url=url, user_agent=user_agent, proxy=proxy)
             if html is None:
                 break
+            if scrape_callback:
+                data.extend(scrape_callback(url, html) or [])
             # 在页面HTML中筛选出匹配我们正则表达式的链接
             for link in get_links(html):
                 if re.search(link_regex, link):
@@ -195,10 +176,3 @@ def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', max_
                         crawl_queue.append(abs_link)
         else:
             print('Blocked by robots.txt:', url)
-
-
-if __name__ == '__main__':
-    start_url = 'http://example.python-scraping.com'
-    link_regex = '/(index|view)/'
-    user_agent = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/69.0.3497.100 Safari/537.36'
-    link_crawler(start_url, link_regex, user_agent=user_agent)

@@ -5,8 +5,8 @@
 
 import time
 import re
-from chapter02.all_scrapers import re_scraper, bs_scraper, lxml_scraper, lxml_xpath_scraper
-from chapter01.advanced_link_crawler import download
+from chp2.all_scrapers import re_scraper, bs_scraper, lxml_scraper, lxml_xpath_scraper
+from chp1.advanced_link_crawler import download
 
 
 NUM_ITERATIONS = 1000   # 测试每个爬虫的时间数

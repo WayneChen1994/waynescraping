@@ -160,8 +160,8 @@ def link_crawler(start_url, link_regex, robots_url=None, user_agent='wswp', prox
                 continue
             throttle.wait(url)
             html = download(url=url, user_agent=user_agent, proxy=proxy)
-            if html is None:
-                break
+            if not html:
+                continue
             if scrape_callback:
                 data.extend(scrape_callback(url, html) or [])
             # 在页面HTML中筛选出匹配我们正则表达式的链接

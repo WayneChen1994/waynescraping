@@ -53,9 +53,12 @@ def scrape_callback(url, html):
 
     if re.search('/view/', url):
         tree = fromstring(html)
-        all_rows = [
-            tree.xpath('//tr[@id="places_%s__row"]/td[@class="w2p_fw"]' % field)[0].text_content()
-            for field in fields]
+        all_rows = []
+        for field in fields:
+            infoList = tree.xpath('//tr[@id="places_%s__row"]/td[@class="w2p_fw"]' % field)
+            if infoList:
+                infoStr = infoList[0].text_content()
+                all_rows.append(infoStr)
         print(url, all_rows)
 
 

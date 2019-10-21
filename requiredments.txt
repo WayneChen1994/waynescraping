@@ -16,7 +16,7 @@ pkg-resources==0.0.0
 python-whois==0.7.0
 requests==2.19.1
 six==1.11.0
-urllib3==1.23
+urllib3==1.24.2
 w3lib==1.19.0
 webencodings==0.5.1
 websocket-client==0.53.0
